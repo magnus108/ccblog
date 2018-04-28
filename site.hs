@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Data.Monoid (mappend)
+import           Data.Monoid ((<>))
 import           Hakyll
 
 
@@ -38,8 +38,8 @@ main = hakyllWith config $ do
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let archiveCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Archives"            `mappend`
+                    listField "posts" postCtx (return posts) <>
+                    constField "title" "Archives" <>
                     defaultContext
 
             makeItem ""
@@ -53,8 +53,8 @@ main = hakyllWith config $ do
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let indexCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Home"                `mappend`
+                    listField "posts" postCtx (return posts) <>
+                    constField "title" "Home" <>
                     defaultContext
 
             getResourceBody
@@ -72,5 +72,5 @@ main = hakyllWith config $ do
 --------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
-    dateField "date" "%B %e, %Y" `mappend`
+    dateField "date" "%B %e, %Y" <>
     defaultContext
