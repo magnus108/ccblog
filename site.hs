@@ -62,6 +62,10 @@ main = hakyllWith config $ do
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
+    match "robots.txt" $ do
+        route idRoute
+        compile copyFileCompiler
+
     match "templates/*" $ compile templateBodyCompiler
 
 
