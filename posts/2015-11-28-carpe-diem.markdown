@@ -1,5 +1,6 @@
 ---
 title: Carpe Diem
+authors: authors/ovidius.markdown
 ---
 
 Fusce tortor quam, egestas in posuere quis, porttitor vel turpis. Donec

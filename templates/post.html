@@ -1,9 +1,9 @@
 <article>
     <section class="header">
         Posted on $date$
-        $if(author)$
-            by $author$
-        $endif$
+        $for(authors)$
+            <a href="$url$">$title$</a>
+        $endfor$
     </section>
     <section>
         $body$

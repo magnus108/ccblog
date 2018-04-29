@@ -1,6 +1,6 @@
 ---
 title: Rosa Rosa Rosam
-author: Ovidius
+authors: authors/ovidius.markdown
 ---
 
 Suspendisse pharetra ullamcorper sem et auctor. Suspendisse vitae tellus eu

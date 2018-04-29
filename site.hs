@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 import           Data.Monoid ((<>))
 import           Hakyll
+import           Data.List.Split
 
 
 --------------------------------------------------------------------------------
@@ -31,6 +32,13 @@ main = hakyllWith config $ do
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
+            >>= relativizeUrls
+
+    match "authors/*" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/author.html"  authorCtx
+            >>= loadAndApplyTemplate "templates/default.html" authorCtx
             >>= relativizeUrls
 
     create ["archive.html"] $ do
@@ -73,4 +81,20 @@ main = hakyllWith config $ do
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" <>
+    listFieldWith "authors" authorCtx postAuthors <>
     defaultContext
+
+
+authorCtx :: Context String
+authorCtx =
+  defaultContext
+
+
+postAuthors :: Item String -> Compiler [Item String]
+postAuthors item = do
+    let self = itemIdentifier item
+    authorPaths <-
+        getMetadataField' self "authors"
+    bios <-
+        mapM (\path -> load (fromFilePath path)) (splitOn "," authorPaths)
+    return bios
