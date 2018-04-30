@@ -1,6 +1,6 @@
 ---
 title: Carpe Diem
-authors: authors/ovidius.markdown
+authors: ovidius
 tags: bar2, foo
 countries: japan, china
 ---

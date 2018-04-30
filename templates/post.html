@@ -1,9 +1,9 @@
 <article>
     <section class="header">
         Posted on $date$
-        $for(authors)$
-            <a href="$url$">$title$</a>
-        $endfor$
+        $if(authors)$
+            Authors: $authors$
+        $endif$
         <br>
         $if(tags)$
             Tags: $tags$

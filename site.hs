@@ -38,20 +38,7 @@ main = hakyllWith config $ do
 
     countries <- buildTagsWith getCountries "posts/*" (fromCapture "countries/*.html")
 
-    tagsRules countries $ \country pattern -> do
-        let title = "Posts from \"" ++ country ++ "\""
-        route idRoute
-        compile $ do
-            posts <- recentFirst =<< loadAll pattern
-            let ctx = constField "title" title <>
-                      listField "posts" postCtx (return posts) <>
-                      defaultContext
-
-            makeItem ""
-                >>= loadAndApplyTemplate "templates/country.html" ctx
-                >>= loadAndApplyTemplate "templates/default.html" ctx
-                >>= relativizeUrls
-
+    authors <- buildTagsWith getAuthors "posts/*" (fromCapture "authors/*.html")
 
     tagsRules tags $ \tag pattern -> do
         let title = "Posts tagged \"" ++ tag ++ "\""
@@ -67,19 +54,41 @@ main = hakyllWith config $ do
                 >>= loadAndApplyTemplate "templates/default.html" ctx
                 >>= relativizeUrls
 
+    tagsRules countries $ \country pattern -> do
+        let title = "Posts from \"" ++ country ++ "\""
+        route idRoute
+        compile $ do
+            posts <- recentFirst =<< loadAll pattern
+            let ctx = constField "title" title <>
+                      listField "posts" postCtx (return posts) <>
+                      defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/country.html" ctx
+                >>= loadAndApplyTemplate "templates/default.html" ctx
+                >>= relativizeUrls
+
+    tagsRules authors $ \author pattern -> do
+        let title = "Posts by \"" ++ author ++ "\""
+        route idRoute
+        compile $ do
+            posts <- recentFirst =<< loadAll pattern
+            let ctx = constField "title" title <>
+                      listField "posts" postCtx (return posts) <>
+                      defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/author.html" ctx
+                >>= loadAndApplyTemplate "templates/default.html" ctx
+                >>= relativizeUrls
+
     match "posts/*" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/post.html" (postCtxWithTags countries tags)
-            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags countries tags)
-            >>= relativizeUrls
-
-
-    match "authors/*" $ do
-        route $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/author.html"  authorCtx
-            >>= loadAndApplyTemplate "templates/default.html" authorCtx
+            >>= loadAndApplyTemplate "templates/post.html"
+                (postCtxWithTags authors countries tags)
+            >>= loadAndApplyTemplate "templates/default.html"
+                (postCtxWithTags authors countries tags)
             >>= relativizeUrls
 
     create ["archive.html"] $ do
@@ -122,18 +131,26 @@ main = hakyllWith config $ do
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" <>
-    listFieldWith "authors" authorCtx postAuthors <>
+    --listFieldWith "authors" authorCtx postAuthors <>
     defaultContext
 
 
-postCtxWithTags :: Tags -> Tags -> Context String
-postCtxWithTags countries tags =
-    countriesField "countries" countries <> tagsField "tags" tags <> postCtx
+postCtxWithTags :: Tags -> Tags -> Tags -> Context String
+postCtxWithTags authors countries tags =
+    authorsField "authors" authors <>
+    countriesField "countries" countries <>
+    tagsField "tags" tags <>
+    postCtx
 
 
 countriesField :: String -> Tags -> Context a
 countriesField =
   tagsFieldWith getCountries simpleRenderLink (mconcat . intersperse ", ")
+
+
+authorsField :: String -> Tags -> Context a
+authorsField =
+  tagsFieldWith getAuthors simpleRenderLink (mconcat . intersperse ", ")
 
 
 simpleRenderLink :: String -> (Maybe FilePath) -> Maybe H.Html
@@ -150,16 +167,24 @@ getCountries identifier = do
         (map trim . splitAll "," <$> lookupString "countries" metadata)
 
 
-authorCtx :: Context String
-authorCtx =
-  defaultContext
+getAuthors :: MonadMetadata m => Identifier -> m [String]
+getAuthors identifier = do
+    metadata <- getMetadata identifier
+    return $ fromMaybe [] $
+        (lookupStringList "authors" metadata) `mplus`
+        (map trim . splitAll "," <$> lookupString "authors" metadata)
 
 
-postAuthors :: Item String -> Compiler [Item String]
-postAuthors item = do
-    let self = itemIdentifier item
-    authorPaths <-
-        getMetadataField' self "authors"
-    bios <-
-        mapM (\path -> load (fromFilePath path)) (splitOn "," authorPaths)
-    return bios
+--authorCtx :: Context String
+--authorCtx =
+--  defaultContext
+
+
+--postAuthors :: Item String -> Compiler [Item String]
+--postAuthors item = do
+--    let self = itemIdentifier item
+--    authorPaths <-
+--        getMetadataField' self "authors"
+--    bios <-
+--        mapM (\path -> load (fromFilePath path)) (splitOn "," authorPaths)
+--    return bios

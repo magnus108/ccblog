@@ -1,6 +1,6 @@
 ---
 title: Tu Quoque
-authors: authors/ovidius.markdown
+authors: ovidius
 tags: bar1, bar2
 countries: denmark
 ---

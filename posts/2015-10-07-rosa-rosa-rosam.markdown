@@ -1,6 +1,6 @@
 ---
 title: Rosa Rosa Rosam
-authors: authors/ovidius.markdown
+authors: ovidius
 tags: foo, bar1, bar2
 countries: vietnam, thailand
 ---

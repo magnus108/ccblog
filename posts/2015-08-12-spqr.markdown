@@ -1,6 +1,6 @@
 ---
 title: S.P.Q.R.
-authors: authors/ovidius.markdown,authors/agda.markdown
+authors: ovidius, agda
 tags: bar1
 countries: india
 ---
