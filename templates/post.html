@@ -4,6 +4,10 @@
         $for(authors)$
             <a href="$url$">$title$</a>
         $endfor$
+        <br>
+        $if(tags)$
+            Tags: $tags$
+        $endif$
     </section>
     <section>
         $body$

@@ -1,6 +1,7 @@
 ---
 title: Rosa Rosa Rosam
 authors: authors/ovidius.markdown
+tags: foo, bar1, bar2
 ---
 
 Suspendisse pharetra ullamcorper sem et auctor. Suspendisse vitae tellus eu
