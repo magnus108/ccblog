@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
 import           Control.Monad (mplus)
-import           Data.Maybe (fromMaybe)
+import           Data.Maybe (fromMaybe, fromJust)
 import           Data.Monoid ((<>))
 import           Hakyll
 import           Data.List (intersperse)
@@ -69,11 +69,14 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
 
     tagsRules authors $ \author pattern -> do
-        let title = "Posts by \"" ++ author ++ "\""
         route idRoute
         compile $ do
             posts <- recentFirst =<< loadAll pattern
+            item <- load (fromFilePath ("authors/" ++ author ++ ".markdown"))
+            title <- getMetadataField' (itemIdentifier item) "title"
+
             let ctx = constField "title" title <>
+                      constField "author" (itemBody item) <>
                       listField "posts" postCtx (return posts) <>
                       defaultContext
 
@@ -90,6 +93,9 @@ main = hakyllWith config $ do
             >>= loadAndApplyTemplate "templates/default.html"
                 (postCtxWithTags authors countries tags)
             >>= relativizeUrls
+
+    match "authors/*" $ do
+        compile $ pandocCompiler
 
     create ["archive.html"] $ do
         route idRoute
@@ -131,7 +137,6 @@ main = hakyllWith config $ do
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" <>
-    --listFieldWith "authors" authorCtx postAuthors <>
     defaultContext
 
 
@@ -173,18 +178,3 @@ getAuthors identifier = do
     return $ fromMaybe [] $
         (lookupStringList "authors" metadata) `mplus`
         (map trim . splitAll "," <$> lookupString "authors" metadata)
-
-
---authorCtx :: Context String
---authorCtx =
---  defaultContext
-
-
---postAuthors :: Item String -> Compiler [Item String]
---postAuthors item = do
---    let self = itemIdentifier item
---    authorPaths <-
---        getMetadataField' self "authors"
---    bios <-
---        mapM (\path -> load (fromFilePath path)) (splitOn "," authorPaths)
---    return bios
