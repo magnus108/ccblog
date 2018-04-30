@@ -1,9 +1,16 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+import           Control.Monad (mplus)
+import           Data.Maybe (fromMaybe)
 import           Data.Monoid ((<>))
 import           Hakyll
+import           Data.List (intersperse)
 import           Data.List.Split
 
+import           Text.Blaze.Html                 (toHtml, toValue, (!))
+import           Text.Blaze.Html.Renderer.String (renderHtml)
+import qualified Text.Blaze.Html5                as H
+import qualified Text.Blaze.Html5.Attributes     as A
 
 --------------------------------------------------------------------------------
 config :: Configuration
@@ -29,6 +36,23 @@ main = hakyllWith config $ do
 
     tags <- buildTags "posts/*" (fromCapture "tags/*.html")
 
+    countries <- buildTagsWith getCountries "posts/*" (fromCapture "countries/*.html")
+
+    tagsRules countries $ \country pattern -> do
+        let title = "Posts from \"" ++ country ++ "\""
+        route idRoute
+        compile $ do
+            posts <- recentFirst =<< loadAll pattern
+            let ctx = constField "title" title <>
+                      listField "posts" postCtx (return posts) <>
+                      defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/country.html" ctx
+                >>= loadAndApplyTemplate "templates/default.html" ctx
+                >>= relativizeUrls
+
+
     tagsRules tags $ \tag pattern -> do
         let title = "Posts tagged \"" ++ tag ++ "\""
         route idRoute
@@ -46,8 +70,8 @@ main = hakyllWith config $ do
     match "posts/*" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags)
-            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)
+            >>= loadAndApplyTemplate "templates/post.html" (postCtxWithTags countries tags)
+            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags countries tags)
             >>= relativizeUrls
 
 
@@ -102,8 +126,28 @@ postCtx =
     defaultContext
 
 
-postCtxWithTags :: Tags -> Context String
-postCtxWithTags tags = tagsField "tags" tags <> postCtx
+postCtxWithTags :: Tags -> Tags -> Context String
+postCtxWithTags countries tags =
+    countriesField "countries" countries <> tagsField "tags" tags <> postCtx
+
+
+countriesField :: String -> Tags -> Context a
+countriesField =
+  tagsFieldWith getCountries simpleRenderLink (mconcat . intersperse ", ")
+
+
+simpleRenderLink :: String -> (Maybe FilePath) -> Maybe H.Html
+simpleRenderLink _   Nothing         = Nothing
+simpleRenderLink tag (Just filePath) =
+  Just $ H.a ! A.href (toValue $ toUrl filePath) $ toHtml tag
+
+
+getCountries :: MonadMetadata m => Identifier -> m [String]
+getCountries identifier = do
+    metadata <- getMetadata identifier
+    return $ fromMaybe [] $
+        (lookupStringList "countries" metadata) `mplus`
+        (map trim . splitAll "," <$> lookupString "countries" metadata)
 
 
 authorCtx :: Context String

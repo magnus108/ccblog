@@ -2,6 +2,7 @@
 title: Rosa Rosa Rosam
 authors: authors/ovidius.markdown
 tags: foo, bar1, bar2
+countries: vietnam, thailand
 ---
 
 Suspendisse pharetra ullamcorper sem et auctor. Suspendisse vitae tellus eu

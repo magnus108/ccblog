@@ -2,6 +2,7 @@
 title: Tu Quoque
 authors: authors/ovidius.markdown
 tags: bar1, bar2
+countries: denmark
 ---
 
 Vestibulum leo turpis, dignissim quis ultrices sit amet, iaculis ac ligula.

@@ -7,6 +7,8 @@ executable site
   main-is:          site.hs
   build-depends:    base == 4.*
                   , split == 0.2.*
+                  , blaze-html == 0.9.*
+                  , blaze-markup == 0.8.*
                   , hakyll == 4.9.*
   ghc-options:      -threaded
   default-language: Haskell2010
