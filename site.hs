@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
 import           Control.Monad (mplus)
-import           Data.Maybe (fromMaybe, fromJust)
+import           Data.Maybe (fromMaybe, fromJust, isJust)
 import           Data.Monoid ((<>))
 import           Hakyll
 import           Data.List (intersperse)
@@ -74,8 +74,11 @@ main = hakyllWith config $ do
             posts <- recentFirst =<< loadAll pattern
             item <- load (fromFilePath ("authors/" ++ author ++ ".markdown"))
             title <- getMetadataField' (itemIdentifier item) "title"
+            face <- getMetadataField (itemIdentifier item) "face"
 
             let ctx = constField "title" title <>
+                      boolField "ifFace" (\_ -> isJust face) <>
+                      constField "face" (fromMaybe "" face) <>
                       constField "author" (itemBody item) <>
                       listField "posts" postCtx (return posts) <>
                       defaultContext

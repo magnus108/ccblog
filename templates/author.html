@@ -1,6 +1,27 @@
-<section>
-    $author$
+<section class="row">
+  <div class="col">
+
+  <div class="row">
+    <div class="col-6">
+      $author$
+    </div>
+
+    $if(ifFace)$
+    <div class="col">
+      <img src="$face$" class="rounded img-thumbnail img-fluid" alt="My face">
+    </div>
+    $endif$
+
+  </div>
+
+  </div>
 </section>
 
-<p>These are my blog posts:</p>
+<br>
+
+<section class="row">
+<div class="col">
+<p>Her er en liste med alle mine blogindlæg:</p>
 $partial("templates/post-list.html")$
+</div>
+</section>
