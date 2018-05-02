@@ -4,20 +4,23 @@
   </div>
 </div>
 <article class="row">
-    <section class="col-md-8">
+    <section class="col-lg-7">
         $body$
     </section>
-    <section class="col-md-3">
+    <section class="col-lg-5">
         $if(authors)$
             $authors$
         $endif$
         <br>
         $if(tags)$
+          <div style="column-count: 1;" class="card-columns">
             $tags$
+          </div>
         $endif$
-        <br>
         $if(countries)$
+          <div style="column-count: 1;" class="card-columns">
             $countries$
+          </div>
         $endif$
     </section>
 </article>

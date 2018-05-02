@@ -168,17 +168,17 @@ postCtxWithTags authors countries tags =
 
 customTagsField :: String -> Tags -> Context a
 customTagsField =
-  tagsFieldWith''' getTags customSimpleRenderTag (mconcat . intersperse ", ")
+  tagsFieldWith''' getTags customSimpleRenderTag mconcat
 
 
 countriesField :: String -> Tags -> Context a
 countriesField =
-  tagsFieldWith'' getCountries simpleRenderCountry (mconcat . intersperse ", ")
+  tagsFieldWith'' getCountries simpleRenderCountry mconcat
 
 
 authorsField :: String -> Tags -> Context a
 authorsField =
-  tagsFieldWith' getAuthors simpleRenderAuthor (mconcat . intersperse ", ")
+  tagsFieldWith' getAuthors simpleRenderAuthor mconcat
 
 --This whole thing could be a list field
 tagsFieldWith' :: (Identifier -> Compiler [String])
@@ -268,19 +268,19 @@ simpleRenderAuthor _ _ _         = Nothing
 
 simpleRenderCountry :: String -> String -> (Maybe FilePath) -> Maybe H.Html
 simpleRenderCountry title image (Just filePath) =
-  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
-    H.img ! A.class_ "card-img-top" ! A.src (toValue image) ! A.alt (toValue title)
-    H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ toHtml title
+  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card d-flex text-center text-dark" $ do
+    H.img ! A.class_ "card-img img-thumbnail" ! A.src (toValue image) ! A.alt (toValue title)
+    H.div ! A.class_ "card-img-overlay align-items-center d-flex justify-content-center" $ do
+      H.p ! A.class_ "card-text font-weight-bold display-4" $ toHtml title
 simpleRenderCountry _ _ _         = Nothing
 
 
 customSimpleRenderTag :: String -> String -> (Maybe FilePath) -> Maybe H.Html
 customSimpleRenderTag title image (Just filePath) =
-  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
-    H.img ! A.class_ "card-img-top" ! A.src (toValue image) ! A.alt (toValue title)
-    H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ toHtml title
+  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card d-flex text-center text-dark" $ do
+    H.img ! A.class_ "card-img img-thumbnail" ! A.src (toValue image) ! A.alt (toValue title)
+    H.div ! A.class_ "card-img-overlay align-items-center d-flex justify-content-center" $ do
+      H.p ! A.class_ "card-text font-weight-bold display-4" $ toHtml title
 customSimpleRenderTag _ _ _         = Nothing
 
 
