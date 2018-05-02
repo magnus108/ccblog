@@ -55,11 +55,16 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
 
     tagsRules countries $ \country pattern -> do
-        let title = "Posts from \"" ++ country ++ "\""
         route idRoute
         compile $ do
             posts <- recentFirst =<< loadAll pattern
+            item <- load (fromFilePath ("countries/" ++ country ++ ".markdown"))
+            title <- getMetadataField' (itemIdentifier item) "title"
+            image <- getMetadataField' (itemIdentifier item) "image"
+
             let ctx = constField "title" title <>
+                      constField "image" image <>
+                      constField "country" (itemBody item) <>
                       listField "posts" postCtx (return posts) <>
                       defaultContext
 
@@ -98,6 +103,9 @@ main = hakyllWith config $ do
             >>= relativizeUrls
 
     match "authors/*" $ do
+        compile $ pandocCompiler
+
+    match "countries/*" $ do
         compile $ pandocCompiler
 
     create ["archive.html"] $ do
@@ -152,7 +160,7 @@ postCtxWithTags authors countries tags =
 
 countriesField :: String -> Tags -> Context a
 countriesField =
-  tagsFieldWith getCountries simpleRenderLink (mconcat . intersperse ", ")
+  tagsFieldWith'' getCountries simpleRenderCountry (mconcat . intersperse ", ")
 
 
 authorsField :: String -> Tags -> Context a
@@ -179,9 +187,33 @@ tagsFieldWith' getTags' renderLink cat key tags = field key $ \item -> do
 
     return $ renderHtml $ cat $ catMaybes $ links
 
+--This is a doublicate.... had to do this since im pulling out diffrent fields like face is image..
+tagsFieldWith'' :: (Identifier -> Compiler [String])
+              -> (String -> String -> (Maybe FilePath) -> Maybe H.Html)
+              -> ([H.Html] -> H.Html)
+              -> String
+              -> Tags
+              -> Context a
+tagsFieldWith'' getTags' renderLink cat key tags = field key $ \item -> do
+    tags' <- getTags' $ itemIdentifier item
+    links <- forM tags' $ \tag -> do
+        route' <- getRoute $ tagsMakeId tags tag
+
+        country <- loadCountry tag
+        title <- getMetadataField' (itemIdentifier country) "title"
+        image <- getMetadataField' (itemIdentifier country) "image"
+
+        return $ renderLink title image route'
+
+    return $ renderHtml $ cat $ catMaybes $ links
+
 
 loadAuthor :: String -> Compiler (Item String)
 loadAuthor tag = load (fromFilePath ("authors/" ++ tag ++ ".markdown"))
+
+
+loadCountry :: String -> Compiler (Item String)
+loadCountry tag = load (fromFilePath ("countries/" ++ tag ++ ".markdown"))
 
 
 simpleRenderAuthor :: String -> (Maybe String) -> (Maybe FilePath) -> Maybe H.Html
@@ -189,12 +221,21 @@ simpleRenderAuthor title (Just face) (Just filePath) =
   Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
     H.img ! A.class_ "card-img-top" ! A.src (toValue face) ! A.alt (toValue title)
     H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ "Some short description"
+      H.p ! A.class_ "card-text" $ toHtml title
 simpleRenderAuthor title Nothing (Just filePath) =
   Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
     H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ "Some short description"
+      H.p ! A.class_ "card-text" $ toHtml title
 simpleRenderAuthor _ _ _         = Nothing
+
+
+simpleRenderCountry :: String -> String -> (Maybe FilePath) -> Maybe H.Html
+simpleRenderCountry title image (Just filePath) =
+  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
+    H.img ! A.class_ "card-img-top" ! A.src (toValue image) ! A.alt (toValue title)
+    H.div ! A.class_ "card-body" $ do
+      H.p ! A.class_ "card-text" $ toHtml title
+simpleRenderCountry _ _ _         = Nothing
 
 
 simpleRenderLink :: String -> (Maybe FilePath) -> Maybe H.Html
