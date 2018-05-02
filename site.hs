@@ -41,11 +41,16 @@ main = hakyllWith config $ do
     authors <- buildTagsWith getAuthors "posts/*" (fromCapture "authors/*.html")
 
     tagsRules tags $ \tag pattern -> do
-        let title = "Posts tagged \"" ++ tag ++ "\""
         route idRoute
         compile $ do
             posts <- recentFirst =<< loadAll pattern
+            item <- load (fromFilePath ("tags/" ++ tag ++ ".markdown"))
+            title <- getMetadataField' (itemIdentifier item) "title"
+            image <- getMetadataField' (itemIdentifier item) "image"
+
             let ctx = constField "title" title <>
+                      constField "image" image <>
+                      constField "tag" (itemBody item) <>
                       listField "posts" postCtx (return posts) <>
                       defaultContext
 
@@ -105,6 +110,9 @@ main = hakyllWith config $ do
     match "authors/*" $ do
         compile $ pandocCompiler
 
+    match "tags/*" $ do
+        compile $ pandocCompiler
+
     match "countries/*" $ do
         compile $ pandocCompiler
 
@@ -154,8 +162,13 @@ postCtxWithTags :: Tags -> Tags -> Tags -> Context String
 postCtxWithTags authors countries tags =
     authorsField "authors" authors <>
     countriesField "countries" countries <>
-    tagsField "tags" tags <>
+    customTagsField "tags" tags <>
     postCtx
+
+
+customTagsField :: String -> Tags -> Context a
+customTagsField =
+  tagsFieldWith''' getTags customSimpleRenderTag (mconcat . intersperse ", ")
 
 
 countriesField :: String -> Tags -> Context a
@@ -207,6 +220,26 @@ tagsFieldWith'' getTags' renderLink cat key tags = field key $ \item -> do
 
     return $ renderHtml $ cat $ catMaybes $ links
 
+--This is a doublicate.... had to do this since im pulling out diffrent fields like face is image..
+tagsFieldWith''' :: (Identifier -> Compiler [String])
+              -> (String -> String -> (Maybe FilePath) -> Maybe H.Html)
+              -> ([H.Html] -> H.Html)
+              -> String
+              -> Tags
+              -> Context a
+tagsFieldWith''' getTags' renderLink cat key tags = field key $ \item -> do
+    tags' <- getTags' $ itemIdentifier item
+    links <- forM tags' $ \tag -> do
+        route' <- getRoute $ tagsMakeId tags tag
+
+        thisTag <- loadTag tag
+        title <- getMetadataField' (itemIdentifier thisTag) "title"
+        image <- getMetadataField' (itemIdentifier thisTag) "image"
+
+        return $ renderLink title image route'
+
+    return $ renderHtml $ cat $ catMaybes $ links
+
 
 loadAuthor :: String -> Compiler (Item String)
 loadAuthor tag = load (fromFilePath ("authors/" ++ tag ++ ".markdown"))
@@ -214,6 +247,10 @@ loadAuthor tag = load (fromFilePath ("authors/" ++ tag ++ ".markdown"))
 
 loadCountry :: String -> Compiler (Item String)
 loadCountry tag = load (fromFilePath ("countries/" ++ tag ++ ".markdown"))
+
+
+loadTag :: String -> Compiler (Item String)
+loadTag tag = load (fromFilePath ("tags/" ++ tag ++ ".markdown"))
 
 
 simpleRenderAuthor :: String -> (Maybe String) -> (Maybe FilePath) -> Maybe H.Html
@@ -238,10 +275,13 @@ simpleRenderCountry title image (Just filePath) =
 simpleRenderCountry _ _ _         = Nothing
 
 
-simpleRenderLink :: String -> (Maybe FilePath) -> Maybe H.Html
-simpleRenderLink _   Nothing         = Nothing
-simpleRenderLink tag (Just filePath) =
-  Just $ H.a ! A.href (toValue $ toUrl filePath) $ toHtml tag
+customSimpleRenderTag :: String -> String -> (Maybe FilePath) -> Maybe H.Html
+customSimpleRenderTag title image (Just filePath) =
+  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
+    H.img ! A.class_ "card-img-top" ! A.src (toValue image) ! A.alt (toValue title)
+    H.div ! A.class_ "card-body" $ do
+      H.p ! A.class_ "card-text" $ toHtml title
+customSimpleRenderTag _ _ _         = Nothing
 
 
 getCountries :: MonadMetadata m => Identifier -> m [String]
