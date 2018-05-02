@@ -118,7 +118,6 @@ main = hakyllWith config $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let indexCtx =
                     listField "posts" postCtx (return posts) <>
-                    constField "title" "Home" <>
                     defaultContext
 
             getResourceBody

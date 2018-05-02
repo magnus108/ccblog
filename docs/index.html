@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>My Hakyll Blog - Home</title>
+        <title>My Hakyll Blog - C&C rejseblog</title>
         <link rel="stylesheet" href="./css/default.css" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -13,93 +13,134 @@
     </head>
     <body>
         <header>
-            <div class="logo">
-                <a href="./">My Hakyll Blog</a>
-            </div>
-            <nav>
-                <a href="./">Home</a>
-                <a href="./about.html">About</a>
-                <a href="./contact.html">Contact</a>
-                <a href="./archive.html">Archive</a>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+              <div class="container">
+                <a class="navbar-brand" href="./">C&C Blog</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                      <a class="nav-link" href="./">Forside</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="./about.html">Omkring</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="./contact.html">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="./archive.html">Arkiv</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </nav>
         </header>
 
-        <main role="main">
-            <h1>Home</h1>
-            <h2>Welcome</h2>
+        <br>
 
-<p>Welcome to my blog!</p>
-
-<p>I've reproduced a list of recent posts here for your reading pleasure:</p>
-
-<h2>Posts</h2>
-<ul>
-    
-        <li>
-            <a href="./posts/2015-12-07-tu-quoque.html">Tu Quoque</a> - December  7, 2015
-        </li>
-    
-        <li>
-            <a href="./posts/2015-11-28-carpe-diem.html">Carpe Diem</a> - November 28, 2015
-        </li>
-    
-        <li>
-            <a href="./posts/2015-10-07-rosa-rosa-rosam.html">Rosa Rosa Rosam</a> - October  7, 2015
-        </li>
-    
-        <li>
-            <a href="./posts/2015-08-12-spqr.html">S.P.Q.R.</a> - August 12, 2015
-        </li>
-    
-</ul>
+        <main class="container">
+            <div class="row">
+                <div class="col">
+                    <h1>C&C rejseblog</h1>
+                </div>
+            </div>
+            <div class="row">
+  <div class="col">
 
 
-<p>…or you can find more in the <a href="./archive.html">archives</a>.</p>
+  <div class="row">
+    <div class="col">
+      <p>Velkommen til vores blog!</p>
+    </div>
+  </div>
 
 
-<h2>Tags</h2>
-<ul>
-    <li>
-        <a href="./tags/foo.html">Foo</a>
-    </li>
-    <li>
-        <a href="./tags/bar2.html">Bar2</a>
-    </li>
-    <li>
-        <a href="./tags/bar1.html">Bar1</a>
-    </li>
-</ul>
+  <div class="row">
+    <div class="col">
+      <div class="card-columns">
+        <a href="./countries/japan.html" class="card">
+          <img class="card-img-top" src="https://cdn.cnn.com/cnnnext/dam/assets/170606121226-japan---travel-destination---shutterstock-230107657.jpg" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Udforsk Japan</h5>
+            <p class="card-text">Mad, triks og andet...</p>
+          </div>
+        </a>
+        <a href="./authors/ovidius.html" class="card p-3">
+          <blockquote class="blockquote mb-0 card-body">
+            <h5 class="card-title">Hør mere fra Ovidius</h5>
+            <footer class="blockquote-footer">
+              <small class="text-muted">
+                Mine ynlings spisesteder er fantastiske!!
+              </small>
+            </footer>
+          </blockquote>
+        </a>
+        <a href="./countries/china.html" class="card">
+          <img class="card-img-top" src="https://australiareiser.getbynder.com/m/11bc98f629c10372/1200pxJPG-7845748.jpg" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Kina er super trendy..</h5>
+            <p class="card-text">Læs dette hvis du skal til kina!</p>
+          </div>
+        </a>
+        <a href="./countries/china.html" class="card">
+          <img class="card-img-top" src="https://australiareiser.getbynder.com/m/11bc98f629c10372/1200pxJPG-7845748.jpg" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Kina er super trendy..</h5>
+            <p class="card-text">Læs dette hvis du skal til kina!</p>
+          </div>
+        </a>
+        <a href="archive.html" class="card bg-primary text-white text-center p-3">
+          <blockquote class="blockquote mb-0">
+            <p>Se alle vores seneste blogs!</p>
+            <footer class="blockquote-footer">
+              <small>
+                Vi C&C Travel elsker at rejse
+              </small>
+            </footer>
+          </blockquote>
+        </a>
+        <a href="./countries/china.html" class="card">
+          <img class="card-img-top" src="https://www.visitdenmark.dk/sites/default/files/styles/gallery_medium_width/public/vdk_images/Attractions-Activities-interest-accommodation-people-geo/Nature/natur-fyns-hoved.jpg?itok=svFUk9VP" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Danmark er også spændende..</h5>
+            <p class="card-text">Læs mere her!</p>
+          </div>
+        </a>
+        <a href="./countries/japan.html" class="card">
+          <img class="card-img-top" src="https://cdn.cnn.com/cnnnext/dam/assets/170606121226-japan---travel-destination---shutterstock-230107657.jpg" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Udforsk Japan</h5>
+            <p class="card-text">Mad, triks og andet...</p>
+          </div>
+        </a>
+        <a href="./countries/china.html" class="card">
+          <img class="card-img-top" src="https://australiareiser.getbynder.com/m/11bc98f629c10372/1200pxJPG-7845748.jpg" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Kina er super trendy..</h5>
+            <p class="card-text">Læs dette hvis du skal til kina!</p>
+          </div>
+        </a>
+        <a href="./authors/ovidius.html" class="card p-3">
+          <blockquote class="blockquote mb-0 card-body">
+            <h5 class="card-title">Hør mere fra Ovidius</h5>
+            <footer class="blockquote-footer">
+              <small class="text-muted">
+                Mine ynlings spisesteder er fantastiske!!
+              </small>
+            </footer>
+          </blockquote>
+        </a>
+      </div>
+    </div>
+  </div>
 
-
-<h2>Countries</h2>
-<ul>
-    <li>
-        <a href="./countries/thailand.html">Thailand</a>
-    </li>
-    <li>
-        <a href="./countries/japan.html">Japan</a>
-    </li>
-    <li>
-        <a href="./countries/china.html">China</a>
-    </li>
-</ul>
-
-
-<h2>Authors</h2>
-<ul>
-    <li>
-        <a href="./authors/agda.html">Agda</a>
-    </li>
-    <li>
-        <a href="./authors/ovidius.html">Ovidius</a>
-    </li>
-</ul>
+  </div>
+</div>
 
         </main>
-
-        <footer>
-            Site proudly generated by
-            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
-        </footer>
     </body>
 </html>
