@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Control.Monad (mplus)
-import           Data.Maybe (fromMaybe, fromJust, isJust)
+import           Control.Monad (mplus, forM)
+import           Data.Maybe (fromMaybe, fromJust, isJust, catMaybes)
 import           Data.Monoid ((<>))
 import           Hakyll
 import           Data.List (intersperse)
@@ -157,7 +157,44 @@ countriesField =
 
 authorsField :: String -> Tags -> Context a
 authorsField =
-  tagsFieldWith getAuthors simpleRenderLink (mconcat . intersperse ", ")
+  tagsFieldWith' getAuthors simpleRenderAuthor (mconcat . intersperse ", ")
+
+--This whole thing could be a list field
+tagsFieldWith' :: (Identifier -> Compiler [String])
+              -> (String -> (Maybe String) -> (Maybe FilePath) -> Maybe H.Html)
+              -> ([H.Html] -> H.Html)
+              -> String
+              -> Tags
+              -> Context a
+tagsFieldWith' getTags' renderLink cat key tags = field key $ \item -> do
+    tags' <- getTags' $ itemIdentifier item
+    links <- forM tags' $ \tag -> do
+        route' <- getRoute $ tagsMakeId tags tag
+
+        author <- loadAuthor tag
+        title <- getMetadataField' (itemIdentifier author) "title"
+        face <- getMetadataField (itemIdentifier author) "face"
+
+        return $ renderLink title face route'
+
+    return $ renderHtml $ cat $ catMaybes $ links
+
+
+loadAuthor :: String -> Compiler (Item String)
+loadAuthor tag = load (fromFilePath ("authors/" ++ tag ++ ".markdown"))
+
+
+simpleRenderAuthor :: String -> (Maybe String) -> (Maybe FilePath) -> Maybe H.Html
+simpleRenderAuthor title (Just face) (Just filePath) =
+  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
+    H.img ! A.class_ "card-img-top" ! A.src (toValue face) ! A.alt (toValue title)
+    H.div ! A.class_ "card-body" $ do
+      H.p ! A.class_ "card-text" $ "Some short description"
+simpleRenderAuthor title Nothing (Just filePath) =
+  Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
+    H.div ! A.class_ "card-body" $ do
+      H.p ! A.class_ "card-text" $ "Some short description"
+simpleRenderAuthor _ _ _         = Nothing
 
 
 simpleRenderLink :: String -> (Maybe FilePath) -> Maybe H.Html

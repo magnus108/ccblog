@@ -1,8 +1,15 @@
-<article>
-    <section class="header">
-        Posted on $date$
+<div class="row">
+  <div class="col">
+    <small class="text-muted"> $date$ </small>
+  </div>
+</div>
+<article class="row">
+    <section class="col-md-8">
+        $body$
+    </section>
+    <section class="col-md-3">
         $if(authors)$
-            Authors: $authors$
+            $authors$
         $endif$
         <br>
         $if(tags)$
@@ -12,8 +19,5 @@
         $if(countries)$
             Countries: $countries$
         $endif$
-    </section>
-    <section>
-        $body$
     </section>
 </article>
