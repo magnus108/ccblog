@@ -4,13 +4,16 @@ import           Control.Monad (mplus, forM)
 import           Data.Maybe (fromMaybe, fromJust, isJust, catMaybes)
 import           Data.Monoid ((<>))
 import           Hakyll
-import           Data.List (intersperse)
+import           Data.List (intersperse, isPrefixOf)
 import           Data.List.Split
 
 import           Text.Blaze.Html                 (toHtml, toValue, (!))
 import           Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Text.Blaze.Html5                as H
 import qualified Text.Blaze.Html5.Attributes     as A
+
+
+import Debug.Trace
 
 --------------------------------------------------------------------------------
 config :: Configuration
@@ -107,14 +110,25 @@ main = hakyllWith config $ do
                 (postCtxWithTags authors countries tags)
             >>= relativizeUrls
 
-    match "authors/*" $ do
-        compile $ pandocCompiler
+    match "countries/*" $ do
+        compile getResourceBody
 
     match "tags/*" $ do
-        compile $ pandocCompiler
+        compile getResourceBody
 
-    match "countries/*" $ do
-        compile $ pandocCompiler
+    match "authors/*" $ version "full" $ do
+        compile getResourceBody
+
+    match "authors/*" $ version "teaser" $ do
+        compile $ do
+          body <- getResourceBody
+
+          return (fmap stripBody body)
+
+    match "authors/*" $ do
+        compile $ do
+          body <- getResourceBody
+          return (fmap stripTeaser body)
 
     create ["archive.html"] $ do
         route idRoute
@@ -166,6 +180,16 @@ postCtxWithTags authors countries tags =
     postCtx
 
 
+stripBody :: String -> String
+stripBody s = fromMaybe "" (needlePrefix "<!--more-->" s)
+
+
+stripTeaser :: String -> String
+stripTeaser = unlines
+              . dropWhile ((/=) "<!--more-->")
+              . lines
+
+
 customTagsField :: String -> Tags -> Context a
 customTagsField =
   tagsFieldWith''' getTags customSimpleRenderTag mconcat
@@ -182,7 +206,7 @@ authorsField =
 
 --This whole thing could be a list field
 tagsFieldWith' :: (Identifier -> Compiler [String])
-              -> (String -> (Maybe String) -> (Maybe FilePath) -> Maybe H.Html)
+              -> (String -> (Maybe String) -> String -> (Maybe FilePath) -> Maybe H.Html)
               -> ([H.Html] -> H.Html)
               -> String
               -> Tags
@@ -192,11 +216,11 @@ tagsFieldWith' getTags' renderLink cat key tags = field key $ \item -> do
     links <- forM tags' $ \tag -> do
         route' <- getRoute $ tagsMakeId tags tag
 
-        author <- loadAuthor tag
+        author <- loadAuthorTeaser tag
         title <- getMetadataField' (itemIdentifier author) "title"
         face <- getMetadataField (itemIdentifier author) "face"
 
-        return $ renderLink title face route'
+        return $ renderLink title face (itemBody author) route'
 
     return $ renderHtml $ cat $ catMaybes $ links
 
@@ -241,8 +265,9 @@ tagsFieldWith''' getTags' renderLink cat key tags = field key $ \item -> do
     return $ renderHtml $ cat $ catMaybes $ links
 
 
-loadAuthor :: String -> Compiler (Item String)
-loadAuthor tag = load (fromFilePath ("authors/" ++ tag ++ ".markdown"))
+loadAuthorTeaser :: String -> Compiler (Item String)
+loadAuthorTeaser tag = load $ setVersion (Just "teaser") $
+    fromFilePath ("authors/" ++ tag ++ ".markdown")
 
 
 loadCountry :: String -> Compiler (Item String)
@@ -253,17 +278,21 @@ loadTag :: String -> Compiler (Item String)
 loadTag tag = load (fromFilePath ("tags/" ++ tag ++ ".markdown"))
 
 
-simpleRenderAuthor :: String -> (Maybe String) -> (Maybe FilePath) -> Maybe H.Html
-simpleRenderAuthor title (Just face) (Just filePath) =
+simpleRenderAuthor :: String -> (Maybe String) -> String -> (Maybe FilePath) -> Maybe H.Html
+simpleRenderAuthor title (Just face) teaser (Just filePath) =
   Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
     H.img ! A.class_ "card-img-top" ! A.src (toValue face) ! A.alt (toValue title)
-    H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ toHtml title
-simpleRenderAuthor title Nothing (Just filePath) =
+    H.div ! A.class_ "card-body" $ renderAuthorTeaser teaser
+simpleRenderAuthor title Nothing teaser (Just filePath) =
   Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
     H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ toHtml title
-simpleRenderAuthor _ _ _         = Nothing
+      H.p ! A.class_ "card-text" $ renderAuthorTeaser teaser
+simpleRenderAuthor _ _ _ _       = Nothing
+
+renderAuthorTeaser :: String -> H.Html
+renderAuthorTeaser s = case s of
+    "" -> mempty
+    teaser -> H.p ! A.class_ "card-text" $ toHtml teaser
 
 
 simpleRenderCountry :: String -> String -> (Maybe FilePath) -> Maybe H.Html
