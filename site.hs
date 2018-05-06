@@ -5,6 +5,7 @@ import           Data.Maybe (fromMaybe, fromJust, isJust, catMaybes)
 import           Data.Monoid ((<>))
 import           Hakyll
 import           Data.List (intersperse, isPrefixOf)
+import           Text.Regex (subRegex, mkRegex)
 import           Data.List.Split
 
 import           Text.Blaze.Html                 (toHtml, toValue, (!))
@@ -104,6 +105,7 @@ main = hakyllWith config $ do
     match "posts/*" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
+            >>= applyFilter youtubeFilter
             >>= loadAndApplyTemplate "templates/post.html"
                 (postCtxWithTags authors countries tags)
             >>= loadAndApplyTemplate "templates/default.html"
@@ -282,12 +284,16 @@ simpleRenderAuthor :: String -> (Maybe String) -> String -> (Maybe FilePath) -> 
 simpleRenderAuthor title (Just face) teaser (Just filePath) =
   Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
     H.img ! A.class_ "card-img-top" ! A.src (toValue face) ! A.alt (toValue title)
-    H.div ! A.class_ "card-body" $ renderAuthorTeaser teaser
+    H.div ! A.class_ "card-body" $ do
+      H.h5 ! A.class_ "card-title" $ (toHtml title)
+      renderAuthorTeaser teaser
 simpleRenderAuthor title Nothing teaser (Just filePath) =
   Just $ H.a ! A.href (toValue $ toUrl filePath) ! A.class_ "card" $ do
     H.div ! A.class_ "card-body" $ do
-      H.p ! A.class_ "card-text" $ renderAuthorTeaser teaser
+      H.h5 ! A.class_ "card-title" $ (toHtml title)
+      renderAuthorTeaser teaser
 simpleRenderAuthor _ _ _ _       = Nothing
+
 
 renderAuthorTeaser :: String -> H.Html
 renderAuthorTeaser s = case s of
@@ -311,6 +317,19 @@ customSimpleRenderTag title image (Just filePath) =
     H.div ! A.class_ "card-img-overlay align-items-center d-flex justify-content-center" $ do
       H.p ! A.class_ "card-text font-weight-bold display-4" $ toHtml title
 customSimpleRenderTag _ _ _         = Nothing
+
+
+applyFilter :: (Monad m, Functor f) => (String-> String) -> f String -> m (f String)
+applyFilter transformator str = return $ (fmap $ transformator) str
+
+
+youtubeFilter :: String -> String
+youtubeFilter x = subRegex regex x result
+  where
+    regex = mkRegex "<p>https?://www\\.youtube\\.com/watch\\?v=([A-Za-z0-9_-]+)</p>"
+    result = renderHtml $
+        H.div ! A.class_ "embed-responsive embed-responsive-16by9" $ do
+          H.iframe ! A.class_ "embed-responsive-item" ! A.src "//www.youtube.com/embed/\\1" $ mempty
 
 
 getCountries :: MonadMetadata m => Identifier -> m [String]
