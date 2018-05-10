@@ -26,11 +26,13 @@ urna vehicula ante, at facilisis dolor odio at lorem. Morbi vehicula euismod
 urna, et imperdiet urna ornare vitae.
 
 
-
-
-
-<div class="card-group"><a href="../tags/bar2.html" class="card" style="border:none; flex: 3;"><img class="card-img" src="https://www.feriehuse.dk/media/1256/napstjertstrand.jpg" alt="Bar2" style="height:100%; padding: 10px 10px 10px 10px;"><div class="card-img-overlay"></div></a><div style="flex: 1; display:flex; flex-direction:column;"><a href="../tags/bar2.html" class="card" style="flex:1; border:none;"><img class="card-img" src="https://www.feriehuse.dk/media/1256/napstjertstrand.jpg" alt="Bar2" style="height:100%; padding: 10px 10px 10px 10px;"><div class="card-img-overlay" style="padding;"></div></a><a href="../tags/bar2.html" class="card" style="flex:1; border:none"><img class="card-img" src="https://www.feriehuse.dk/media/1256/napstjertstrand.jpg" alt="Bar2" style="padding: 10px 10px 10px 10px; height:100%"><div class="card-img-overlay" style="padding;"></div></a></div></div>
-
+{
+1x3
+https://www.feriehuse.dk/media/1256/napstjertstrand.jpg
+https://images.pexels.com/photos/257360/pexels-photo-257360.jpeg?auto=compress&cs=tinysrgb&h=350
+https://images.pexels.com/photos/236047/pexels-photo-236047.jpeg?auto=compress&cs=tinysrgb&h=350
+https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Bachalpsee_reflection.jpg/300px-Bachalpsee_reflection.jpg
+}
 
 
 Sed tincidunt sollicitudin ultrices. In hac habitasse platea dictumst. Morbi

@@ -106,6 +106,7 @@ main = hakyllWith config $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= applyFilter youtubeFilter
+            >>= applyFilter imgFilter
             >>= loadAndApplyTemplate "templates/post.html"
                 (postCtxWithTags authors countries tags)
             >>= loadAndApplyTemplate "templates/default.html"
@@ -124,7 +125,6 @@ main = hakyllWith config $ do
     match "authors/*" $ version "teaser" $ do
         compile $ do
           body <- getResourceBody
-
           return (fmap stripBody body)
 
     match "authors/*" $ do
@@ -321,6 +321,27 @@ customSimpleRenderTag _ _ _         = Nothing
 
 applyFilter :: (Monad m, Functor f) => (String-> String) -> f String -> m (f String)
 applyFilter transformator str = return $ (fmap $ transformator) str
+
+
+imgFilter :: String -> String
+imgFilter x = subRegex regex x result
+  where
+    regex = mkRegex "<p>\\{\\s1x3\\s(.+)\\s(.+)\\s(.+)\\s(.+)\\s\\}</p>"
+    result = renderHtml $
+      H.div ! A.class_ "card-group" $ do
+        H.a ! A.href "\\1" ! A.class_ "card" ! A.style "border:none;flex:3;" $ do
+          H.img ! A.class_ "card-img" ! A.src "\\1" ! A.style "height:100%;padding: 10px 10px 10px 10px;"
+          H.div ! A.class_ "card-img-overlay" $ mempty
+        H.div ! A.style "flex:1;display:flex;flex-direction:column;" $ do
+          H.a ! A.href "\\2" ! A.class_ "card" ! A.style "border:none;flex:1;" $ do
+            H.img ! A.class_ "card-img" ! A.src "\\2" ! A.style "height:100%;padding: 10px 10px 10px 10px;"
+            H.div ! A.class_ "card-img-overlay" $ mempty
+          H.a ! A.href "\\3" ! A.class_ "card" ! A.style "border:none;flex:1;" $ do
+            H.img ! A.class_ "card-img" ! A.src "\\3" ! A.style "height:100%;padding: 10px 10px 10px 10px;"
+            H.div ! A.class_ "card-img-overlay" $ mempty
+          H.a ! A.href "\\4" ! A.class_ "card" ! A.style "border:none;flex:1;" $ do
+            H.img ! A.class_ "card-img" ! A.src "\\4" ! A.style "height:100%;padding: 10px 10px 10px 10px;"
+            H.div ! A.class_ "card-img-overlay" $ mempty
 
 
 youtubeFilter :: String -> String
